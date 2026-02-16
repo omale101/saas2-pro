@@ -2,12 +2,13 @@ pipeline {
     agent any
 
     environment {
+        DOCKER_HOST = 'tcp://localhost:2375'
         EC2_USER = 'ec2-user'
         EC2_HOST = '44.202.43.138'
         PRIVATE_KEY_PATH = 'C:/Users/OMALE/Downloads/successkey1.pem'
         IMAGE_NAME = 'success-saas-jen1'
         IMAGE_TAG = "build-${env.BUILD_NUMBER}"
-        GIT_REPO = 'https://github.com/omale101/saas2-pro.git'
+        GIT_REPO = "https://github.com/omale101/saas2-pro.git"
         BRANCH_NAME = 'main'
         GIT_BASH = '"C:\\Program Files\\Git\\bin\\bash.exe" -c'
         DOCKERHUB_CREDENTIALS_ID = 'dockerhub-creds'
