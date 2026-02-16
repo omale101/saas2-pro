@@ -38,12 +38,13 @@ pipeline {
                     """
 
                     script {
+                        // CHANGED: Container port changed from 80 to 8000 to match Gunicorn logs
                         def remoteScript = """
                             echo '${DOCKERHUB_PASS}' | docker login -u '${DOCKERHUB_USER}' --password-stdin && \
                             docker pull ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG} && \
                             docker stop ${IMAGE_NAME} || true && \
                             docker rm ${IMAGE_NAME} || true && \
-                            docker run -d --name ${IMAGE_NAME} -p 80:80 ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}
+                            docker run -d --name ${IMAGE_NAME} -p 80:8000 ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}
                         """.stripIndent().trim()
 
                         def escapedScript = remoteScript.replace("'", "'\\''")
