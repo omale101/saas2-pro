@@ -3,9 +3,12 @@ pipeline {
 
     environment {
         DOCKER_HOST = 'tcp://localhost:2375'
+        DOCKER_CLIENT_TIMEOUT = '300'
+        COMPOSE_HTTP_TIMEOUT = '300'
+        DOCKER_BUILDKIT = '1'
         EC2_USER = 'ec2-user'
         EC2_HOST = '44.202.43.138'
-        PRIVATE_KEY_PATH = 'C:/Users/OMALE/Downloads/successkey1.pem'
+        PRIVATE_KEY_PATH = '/c/Users/OMALE/Downloads/successkey1.pem'
         IMAGE_NAME = 'success-saas-jen1'
         IMAGE_TAG = "build-${env.BUILD_NUMBER}"
         GIT_REPO = "https://github.com/omale101/saas2-pro.git"
@@ -17,7 +20,6 @@ pipeline {
     stages {
         stage('Clone Code') {
             steps {
-                echo "✅ Cloning '${BRANCH_NAME}' from ${GIT_REPO}"
                 git branch: "${BRANCH_NAME}", url: "${GIT_REPO}"
             }
         }
@@ -29,22 +31,12 @@ pipeline {
                     usernameVariable: 'DOCKERHUB_USER',
                     passwordVariable: 'DOCKERHUB_PASS'
                 )]) {
-                    echo "🐳 Logging into DockerHub"
                     bat """
                         ${GIT_BASH} "echo '${DOCKERHUB_PASS}' | docker login -u '${DOCKERHUB_USER}' --password-stdin"
-                    """
-
-                    echo "🐳 Building Docker image: ${IMAGE_NAME}:${IMAGE_TAG}"
-                    bat """
                         ${GIT_BASH} "docker build -t ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG} ."
-                    """
-
-                    echo "📤 Pushing Docker image to DockerHub"
-                    bat """
                         ${GIT_BASH} "docker push ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}"
                     """
 
-                    echo "🚀 Deploying to EC2: ${EC2_HOST}"
                     script {
                         def remoteScript = """
                             echo '${DOCKERHUB_PASS}' | docker login -u '${DOCKERHUB_USER}' --password-stdin && \
@@ -54,9 +46,7 @@ pipeline {
                             docker run -d --name ${IMAGE_NAME} -p 80:80 ${DOCKERHUB_USER}/${IMAGE_NAME}:${IMAGE_TAG}
                         """.stripIndent().trim()
 
-                        // Escape for one-liner SSH inside Git Bash
                         def escapedScript = remoteScript.replace("'", "'\\''")
-
                         def sshCommand = """
                             ${GIT_BASH} "ssh -o StrictHostKeyChecking=no -i '${PRIVATE_KEY_PATH}' ${EC2_USER}@${EC2_HOST} '${escapedScript}'"
                         """.stripIndent().trim()
