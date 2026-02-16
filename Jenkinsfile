@@ -3,9 +3,9 @@ pipeline {
 
     environment {
         EC2_USER = 'ec2-user'
-        EC2_HOST = '16.170.140.55'
-        PRIVATE_KEY_PATH = 'C:/Users/Success/Downloads/electricaa-key.pem'
-        IMAGE_NAME = 'hub_electricaa'
+        EC2_HOST = '44.202.43.138'
+        PRIVATE_KEY_PATH = 'C:/Users/OMALE/Downloads/successkey1.pem'
+        IMAGE_NAME = 'success-saas-jen1'
         IMAGE_TAG = "build-${env.BUILD_NUMBER}"
         GIT_REPO = 'https://github.com/Success-C-Opara/electric-001.git'
         BRANCH_NAME = 'main'
